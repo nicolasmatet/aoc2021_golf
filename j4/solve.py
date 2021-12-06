@@ -1,5 +1,4 @@
 from collections import defaultdict
-from itertools import chain
 from typing import NamedTuple, Dict, Set, List
 
 Position = NamedTuple('Position', [('r', int), ('c', int)])
