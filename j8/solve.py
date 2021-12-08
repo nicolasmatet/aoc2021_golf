@@ -1,5 +1,8 @@
+from collections import namedtuple
 from itertools import chain
-from typing import List, Set
+from typing import List
+
+DecodedDigit = namedtuple('DecodedDigit', ['coded', 'decoded'])
 
 
 class Digit:
@@ -8,30 +11,21 @@ class Digit:
         self.value = value
         self.segments = {*segments}
 
-    def __str__(self):
-        return '{} ({:d})'.format(''.join(sorted(list(self.segments))), self.value)
-
-    def could_decode(self, coded_digit: 'Digit', decoded_digits: List['DecodedDigits']):
+    def _could_decode(self, coded_digit: 'Digit', decoded_digits: List[DecodedDigit]):
         for decoded_digit in decoded_digits:
-            coded_match_len = len(coded_digit.segments.intersection(decoded_digit.coded))
-            decoded_match_len = len(self.segments.intersection(decoded_digit.decoded))
+            coded_match_len = len(coded_digit.segments.intersection(decoded_digit.coded.segments))
+            decoded_match_len = len(self.segments.intersection(decoded_digit.decoded.segments))
             if coded_match_len != decoded_match_len:
                 return False
         return True
 
-    def decode(self, all_digits: List['Digit'], decoded_digits: List['DecodedDigits']):
-        decoded_candidates = [d for d in all_digits if d.could_decode(self, decoded_digits)]
+    def decode(self, all_digits: List['Digit'], decoded_digits: List[DecodedDigit]):
+        decoded_candidates = [d for d in all_digits if d._could_decode(self, decoded_digits)]
         if len(decoded_candidates) == 1:
             return decoded_candidates[0]
 
     def is_decoded(self):
         return self.value >= 0
-
-
-class DecodedDigits:
-    def __init__(self, coded: Set[str], decoded: Set[str]):
-        self.coded = coded
-        self.decoded = decoded
 
 
 class Display:
@@ -41,7 +35,7 @@ class Display:
     def __init__(self, input: List[str], output: List[str]):
         self.input = [Digit(-1, v) for v in input]
         self.output = [Digit(-1, v) for v in output]
-        self.decoded_digits = [DecodedDigits({*'abcdefg'}, {*'abcdefg'})]
+        self.decoded_digits = [DecodedDigit(Digit(8, 'abcdefg'), Digit(8, 'abcdefg'))]
 
     def has_undecoded_input(self):
         return len([d for d in self.input if d.value < 0])
@@ -56,7 +50,7 @@ class Display:
             decoded_digit = coded_digit.decode(self.all_digits, self.decoded_digits)
             if decoded_digit:
                 coded_digit.value = decoded_digit.value
-                self.decoded_digits.append(DecodedDigits(coded_digit.segments, decoded_digit.segments))
+                self.decoded_digits.append(DecodedDigit(coded_digit, decoded_digit))
 
 
 def display_generator():
