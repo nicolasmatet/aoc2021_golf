@@ -1,6 +1,6 @@
 def lines():
-    for l in open("input.txt"):
-        yield l
+    for line in open("input.txt"):
+        yield line
 
 
 
