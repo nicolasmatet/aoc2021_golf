@@ -2,7 +2,6 @@ import abc
 from functools import reduce
 from typing import Iterable
 
-
 class BinStream:
     def __init__(self, hex_stream: Iterable):
         self._hex_stream = iter(hex_stream)
